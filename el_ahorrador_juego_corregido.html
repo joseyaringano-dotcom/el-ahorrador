@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#126b4d">
+<title>El Ahorrador | Juego educativo</title>
+<style>
+:root{--green:#137b55;--green2:#20a477;--bg:#f1f7f3;--ink:#183329;--muted:#61756b;--line:#dce8df;--card:#fff;--gold:#f5c451}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+main{max-width:850px;margin:auto;padding:16px}.hero{background:linear-gradient(120deg,#126b4d,#20a477);color:white;border-radius:20px;padding:22px;display:flex;justify-content:space-between;align-items:center;gap:12px}.hero h1{margin:5px 0;font-size:clamp(25px,6vw,38px)}.pig{font-size:60px}.eyebrow{font-size:12px;letter-spacing:2px;font-weight:800;opacity:.85}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:14px;box-shadow:0 3px 12px #173d2510}
+h2{font-size:19px;margin:0 0 10px}p{line-height:1.5}.muted{color:var(--muted)}label{font-weight:700;font-size:14px;display:block;margin:10px 0 5px}
+input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:16px;background:#fbfdfb;color:var(--ink)}
+button{font:inherit;cursor:pointer;border:0;border-radius:11px;padding:12px 15px;font-weight:750}
+.primary{background:var(--green);color:white;width:100%}.secondary{background:#eaf3ed;color:var(--green);border:1px solid #cfe2d5}.choice{background:white;border:1px solid var(--line);text-align:left;width:100%;margin:5px 0;color:var(--ink)}button:disabled{opacity:.45;cursor:not-allowed}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#edf5ef;border-radius:12px;padding:11px;min-width:0}.stat small{display:block;color:var(--muted)}.stat strong{font-size:clamp(17px,4vw,23px)}
+.progress{height:9px;background:#e5eee7;border-radius:20px;overflow:hidden;margin:8px 0}.progress div{height:100%;background:var(--green2);transition:width .25s}
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}.tile{border:1px solid var(--line);border-radius:10px;min-height:68px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:11px;background:#f7faf7}.tile .emoji{font-size:20px}.tile .num{font-size:10px;color:var(--muted)}.tile.current{outline:3px solid var(--green);background:#d9f5e4}.tile.done{opacity:.48}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+.event{border:2px solid #b9dfc8;background:#f6fcf7}.event h2{margin:0}.eventTag{font-size:11px;font-weight:800;background:#e4f2e8;padding:5px 9px;border-radius:20px}
+.hidden{display:none!important}.result{font-weight:700;background:#e8f5eb;border-radius:10px;padding:11px;margin-top:10px}
+.history{font-size:13px;color:var(--muted);display:grid;gap:8px}.history div{border-bottom:1px solid var(--line);padding-bottom:7px}
+.footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
+@media(max-width:430px){main{padding:10px}.card{padding:13px}.tile{min-height:60px;font-size:10px}.pig{font-size:48px}.stats{gap:5px}}
+</style>
+</head>
+<body>
+<main>
+<header class="hero"><div><div class="eyebrow">AVENTURA FINANCIERA</div><h1>EL AHORRADOR</h1><div>¡Aprende a cuidar tu dinero!</div></div><div class="pig" aria-hidden="true">🐷</div></header>
+
+<section class="card" id="setup">
+<h2>🎮 ¡Comencemos a jugar!</h2>
+<p class="muted">Administra tu dinero durante un mes. Toma buenas decisiones, enfrenta imprevistos y alcanza tu meta de ahorro.</p>
+<label for="player">Nombre del jugador</label><input id="player" maxlength="25" placeholder="Escribe tu nombre">
+<div class="stats" style="margin:13px 0"><div class="stat"><small>💵 Dinero inicial</small><strong>S/ 100</strong></div><div class="stat"><small>🐷 En la alcancía</small><strong>S/ 20</strong></div><div class="stat"><small>🎯 Meta</small><strong>S/ 50</strong></div></div>
+<p class="muted" style="font-size:13px">Comienzas con S/ 80 disponibles y S/ 20 ahorrados. Cada ingreso nuevo separa automáticamente el 20 % para tu alcancía.</p>
+<button class="primary" id="start">Comenzar aventura 🚀</button>
+</section>
+
+<section id="game" class="hidden">
+<div class="card">
+<div class="stats"><div class="stat"><small>💵 Disponible</small><strong id="wallet">S/ 80</strong></div><div class="stat"><small>🐷 Ahorrado</small><strong id="saved">S/ 20</strong></div><div class="stat"><small>📍 Casilla</small><strong id="position">1/30</strong></div></div>
+<div style="display:flex;justify-content:space-between;gap:8px;margin-top:15px;font-size:14px"><b id="greeting">¡Vamos!</b><b id="day">Día 1 de 30</b></div><div class="progress"><div id="monthProgress" style="width:3.3%"></div></div>
+<div style="display:flex;justify-content:space-between;font-size:13px"><b>🎯 Meta: S/ 50</b><span id="goalText" class="muted">Te faltan S/ 30</span></div><div class="progress"><div id="goalProgress" style="width:40%"></div></div>
+</div>
+<div class="card"><h2>🗺️ Tu camino del ahorro</h2><div class="board" id="board"></div><div class="legend"><span>🐷 Ahorro</span><span>🛍️ Gasto</span><span>💵 Ingreso</span><span>⚠️ Imprevisto</span><span>🤔 Decisión</span></div></div>
+<div class="card"><h2>🎲 Tu turno</h2><div style="display:flex;align-items:center;gap:14px"><div id="dice" style="font-size:42px">⚀</div><p class="muted" id="turnMessage">Lanza el dado para avanzar.</p></div><button class="primary" id="roll">Lanzar el dado 🎲</button></div>
+<div class="card event hidden" id="event"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><h2 id="eventTitle">Situación</h2><span class="eventTag" id="eventTag">RETO</span></div><p id="eventDescription"></p><div id="choices"></div><div id="eventResult"></div><button id="continue" class="primary hidden" style="margin-top:12px">Continuar ➜</button></div>
+<div class="card"><h2>📒 Mi registro financiero</h2><div class="stats"><div class="stat"><small>Ingresos</small><strong id="incomeTotal">S/ 0</strong></div><div class="stat"><small>Gastos</small><strong id="expenseTotal">S/ 0</strong></div><div class="stat"><small>Aportes al ahorro</small><strong id="savingTotal">S/ 0</strong></div></div><div class="history" id="history" style="margin-top:13px">Aún no tienes movimientos.</div></div>
+<button class="secondary" id="restart" style="width:100%;margin-top:12px">↻ Reiniciar partida</button>
+</section>
+
+<section class="card hidden" id="finish" style="text-align:center">
+<div style="font-size:60px">🏆</div><h2>¡Aventura terminada!</h2><p id="finalMessage" class="muted"></p>
+<div class="stats"><div class="stat"><small>🐷 Ahorro final</small><strong id="finalSaved">S/ 0</strong></div><div class="stat"><small>💵 Disponible</small><strong id="finalWallet">S/ 0</strong></div><div class="stat"><small>🧾 Gastos</small><strong id="finalExpense">S/ 0</strong></div></div>
+<div id="finalBadge" class="result"></div>
+<h2 style="text-align:left;margin-top:18px">🧠 Reflexiona</h2><p style="text-align:left">1. ¿Qué gasto podrías evitar en tu vida diaria?</p><p style="text-align:left">2. ¿Por qué es importante ahorrar una parte de tus ingresos?</p><p style="text-align:left">3. ¿Qué meta de ahorro te propones?</p>
+<button class="primary" id="again">Volver a jugar 🔄</button>
+</section>
+<div class="footer">EL AHORRADOR · Juego educativo de hábitos de ahorro</div>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const types=['start','income','save','expense','decision','income','expense','save','unexpected','decision','income','expense','save','decision','unexpected','income','save','expense','decision','income','unexpected','save','expense','decision','income','save','unexpected','expense','decision','finish'];
+const icons={start:'🚩',income:'💵',save:'🐷',expense:'🛍️',decision:'🤔',unexpected:'⚠️',finish:'🏁'};
+const names={start:'Salida',income:'Ingreso',save:'Ahorro',expense:'Gasto',decision:'Decisión',unexpected:'Imprevisto',finish:'Meta'};
+let s=null;
+const fmt=n=>'S/ '+Math.max(0,n).toFixed(0);
+function start(){s={name:$('player').value.trim()||'Estudiante',pos:0,wallet:80,saved:20,income:0,expense:0,contributed:0,waiting:false,history:[]};$('setup').classList.add('hidden');$('finish').classList.add('hidden');$('game').classList.remove('hidden');$('event').classList.add('hidden');$('roll').disabled=false;$('dice').textContent='⚀';$('turnMessage').textContent='Lanza el dado para avanzar.';render();}
+function log(x){s.history.unshift(x);s.history=s.history.slice(0,8);$('history').innerHTML=s.history.map(v=>'<div>'+v+'</div>').join('')||'Aún no tienes movimientos.';}
+function render(){
+$('wallet').textContent=fmt(s.wallet);$('saved').textContent=fmt(s.saved);$('position').textContent=(s.pos+1)+'/30';$('greeting').textContent='¡Vamos, '+s.name+'!';$('day').textContent='Día '+(s.pos+1)+' de 30';$('monthProgress').style.width=((s.pos+1)/30*100)+'%';$('goalText').textContent=s.saved>=50?'¡Meta alcanzada!':'Te faltan '+fmt(50-s.saved);$('goalProgress').style.width=Math.min(100,s.saved/50*100)+'%';$('incomeTotal').textContent=fmt(s.income);$('expenseTotal').textContent=fmt(s.expense);$('savingTotal').textContent=fmt(s.contributed);
+$('board').innerHTML=types.map((t,i)=>`<div class="tile ${i===s.pos?'current':''} ${i<s.pos?'done':''}"><span class="num">${i+1}</span><span class="emoji">${icons[t]}</span><span>${names[t]}</span>${i===s.pos?'<b>📍</b>':''}</div>`).join('');
+}
+function addIncome(n,label){let a=Math.floor(n*.2),v=n-a;s.income+=n;s.saved+=a;s.contributed+=a;s.wallet+=v;log('💵 '+label+': +'+fmt(n)+' (ahorro automático '+fmt(a)+')');return 'Recibiste '+fmt(n)+'. Se guardaron '+fmt(a)+' y tienes '+fmt(v)+' disponibles.';}
+function spend(n,label){let from=Math.min(s.wallet,n),short=n-from;s.wallet-=from;if(short){s.saved=Math.max(0,s.saved-short);log('🐷 Se usaron '+fmt(short)+' de tu alcancía para cubrir el gasto.');}s.expense+=n;log('🛍️ '+label+': -'+fmt(n));return 'Pagaste '+fmt(n)+(short?'. Tu alcancía cubrió '+fmt(short)+'.':'.');}
+function save(n){if(s.wallet<n)return false;s.wallet-=n;s.saved+=n;s.contributed+=n;log('🐷 Guardaste '+fmt(n)+' en tu alcancía.');return true;}
+function show(title,desc,tag,opts){$('event').classList.remove('hidden');$('eventTitle').textContent=title;$('eventDescription').textContent=desc;$('eventTag').textContent=tag;$('eventResult').className='';$('eventResult').textContent='';$('continue').classList.add('hidden');$('choices').innerHTML='';opts.forEach(o=>{let b=document.createElement('button');b.className='choice';b.textContent=o.label;b.onclick=()=>{s.waiting=true;$('choices').innerHTML='';$('eventResult').className='result';$('eventResult').textContent=o.run();$('continue').classList.remove('hidden');render();};$('choices').appendChild(b);});}
+function resolve(){let t=types[s.pos];
+if(t==='income')show('💵 ¡Recibiste dinero!','Ayudaste en un negocio familiar y recibiste S/ 15.','INGRESO',[{label:'Aceptar ingreso',run:()=>addIncome(15,'Apoyo familiar')}]);
+else if(t==='save')show('🐷 ¡Oportunidad de ahorro!','Tienes dinero disponible. ¿Quieres guardar S/ 5 en tu alcancía?','AHORRO',[{label:'Sí, ahorrar S/ 5',run:()=>save(5)?'¡Muy bien! Guardaste S/ 5.':'No tienes suficiente dinero disponible.'},{label:'No, conservar mi dinero',run:()=>'Decidiste conservar tu dinero disponible. Recuerda tu meta.'}]);
+else if(t==='expense')show('🛍️ ¡Hora de comprar!','Compraste una merienda y gastaste S/ 8.','GASTO',[{label:'Pagar S/ 8',run:()=>spend(8,'Compra de merienda')}]);
+else if(t==='unexpected')show('⚠️ ¡Surgió un imprevisto!','Necesitas S/ 12 para reponer un útil escolar que se perdió.','IMPREVISTO',[{label:'Resolver el imprevisto',run:()=>spend(12,'Imprevisto escolar')}]);
+else if(t==='decision')show('🤔 ¡Toma una decisión!','Tus amigos te invitan a comprar un accesorio que cuesta S/ 15. ¿Qué harás?','DECISIÓN',[{label:'Comprar el accesorio por S/ 15',run:()=>spend(15,'Compra de accesorio')},{label:'No comprar y guardar S/ 5',run:()=>save(5)?'¡Buena decisión! Guardaste S/ 5 y evitaste un gasto innecesario.':'No tienes S/ 5 disponibles. ¡Conserva tu dinero!'}]);
+else finish();}
+function finish(){$('game').classList.add('hidden');$('finish').classList.remove('hidden');$('finalSaved').textContent=fmt(s.saved);$('finalWallet').textContent=fmt(s.wallet);$('finalExpense').textContent=fmt(s.expense);let ok=s.saved>=50;$('finalMessage').textContent=ok?'¡Felicitaciones, '+s.name+'! Alcanzaste tu meta de ahorro.':'¡Buen esfuerzo, '+s.name+'! Terminaste el recorrido. Sigue practicando para alcanzar S/ 50.';$('finalBadge').textContent=ok?'🌟 AHORRADOR DESTACADO: cumpliste tu meta.':'💪 SIGUE PRACTICANDO: cada decisión cuenta.';}
+function reset(){$('game').classList.add('hidden');$('finish').classList.add('hidden');$('setup').classList.remove('hidden');s=null;}
+$('start').onclick=start;
+$('roll').onclick=()=>{if(!s||s.waiting)return;let n=Math.floor(Math.random()*6)+1;$('dice').textContent=['⚀','⚁','⚂','⚃','⚄','⚅'][n-1];s.pos=Math.min(29,s.pos+n);s.waiting=true;$('roll').disabled=true;$('turnMessage').textContent='Avanzaste '+n+' casillas. ¡Resuelve el reto!';render();resolve();};
+$('continue').onclick=()=>{$('event').classList.add('hidden');s.waiting=false;if(s.pos===29){finish();return;}$('roll').disabled=false;$('turnMessage').textContent='¡Buen trabajo! Lanza el dado para continuar.';};
+$('restart').onclick=reset;$('again').onclick=reset;
+})();
+</script>
+</body></html>
